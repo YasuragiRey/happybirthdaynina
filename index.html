@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Nina!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        #game-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 { font-size: 1.5rem; color: #f1c40f; margin-bottom: 20px; }
+        p { font-size: 0.8rem; line-height: 1.5; margin-bottom: 30px; }
+
+        #gift-button {
+            padding: 15px 25px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            background-color: #e74c3c;
+            color: white;
+            border: 4px solid #c0392b;
+            cursor: pointer;
+            position: absolute;
+            transition: all 0.1s ease;
+            z-index: 10;
+            touch-action: manipulation;
+        }
+
+        #message-box {
+            margin-top: 20px;
+            color: #2ecc71;
+            font-size: 0.6rem;
+            height: 40px;
+        }
+
+        #final-gift {
+            display: none;
+            width: 90%;
+            max-width: 400px;
+            animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .tenor-gif-embed {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+        }
+    </style>
+</head>
+<body onclick="startMusic()">
+
+    <div id="game-container">
+        <div id="intro">
+            <h1>HAPPY BIRTHDAY NINA!</h1>
+            <p>I got you a little something... <br> if you can catch it.</p>
+        </div>
+
+        <button id="gift-button" onclick="handleTap()">OPEN FOR UR GIFT</button>
+        <div id="message-box"></div>
+
+        <div id="final-gift">
+            <h2 style="color: #f1c40f; font-size: 1rem;">FINALLY! HAPPY BDAY!</h2>
+            <div class="tenor-gif-embed" data-postid="18377415999774379195" data-share-method="host" data-aspect-ratio="0.738956" data-width="100%">
+                <a href="https://tenor.com/view/birthday-cake-happy-birthday-birthday-cat-gif-18377415999774379195">Birthday Cake Happy Birthday GIF</a>
+            </div>
+            <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+        </div>
+    </div>
+
+    <script>
+        let taps = 0;
+        const button = document.getElementById('gift-button');
+        const messageBox = document.getElementById('message-box');
+        const intro = document.getElementById('intro');
+        const finalGift = document.getElementById('final-gift');
+
+        const phrases = [
+            "Oop! Too slow!",
+            "Almost had it!",
+            "Nina, try harder!",
+            "Are your thumbs tired yet?",
+            "Catch me if you can!",
+            "Wait, over here now!",
+            "You're getting warm...",
+            "Just kidding!",
+            "Is it even in there?",
+            "LAST ONE I PROMISE!"
+        ];
+
+        function moveButton() {
+            const padding = 50;
+            // Ensure button stays within the mobile viewport
+            const maxX = window.innerWidth - button.offsetWidth - padding;
+            const maxY = window.innerHeight - button.offsetHeight - padding;
+            
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+            button.style.left = randomX + 'px';
+            button.style.top = randomY + 'px';
+        }
+
+        function handleTap() {
+            taps++;
+            if (taps < 10) {
+                moveButton();
+                messageBox.innerText = phrases[taps - 1];
+            } else {
+                showGift();
+            }
+        }
+
+        function showGift() {
+            button.style.display = 'none';
+            messageBox.style.display = 'none';
+            intro.style.display = 'none';
+            finalGift.style.display = 'block';
+        }
+
+        // 8-bit Sound Generator (Web Audio API)
+        let audioCtx;
+        function startMusic() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            playBirthdaySong();
+        }
+
+        function playNote(frequency, duration, startTime) {
+            const oscillator = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            oscillator.type = 'square'; // Gives that 8-bit sound
+            oscillator.frequency.value = frequency;
+            
+            gain.gain.setValueAtTime(0.1, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+            
+            oscillator.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration);
+        }
+
+        function playBirthdaySong() {
+            const tempo = 0.4;
+            const notes = [
+                [261, 0.4], [261, 0.4], [293, 0.8], [261, 0.8], [349, 0.8], [329, 1.6],
+                [261, 0.4], [261, 0.4], [293, 0.8], [261, 0.8], [392, 0.8], [349, 1.6]
+            ];
+            
+            let time = audioCtx.currentTime;
+            notes.forEach(note => {
+                playNote(note[0], note[1] * tempo, time);
+                time += note[1] * tempo;
+            });
+            
+            // Loop the song
+            setTimeout(playBirthdaySong, 5000);
+        }
+
+        // Initialize button position
+        moveButton();
+    </script>
+</body>
+</html>
